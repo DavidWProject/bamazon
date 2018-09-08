@@ -2,6 +2,8 @@ var mysql = require("mysql");
 const cTable = require('console.table');
 var inquirer = require('inquirer');
 
+var counter = 14; 
+
 var connection = mysql.createConnection({
     host: "localhost",
 
@@ -80,7 +82,7 @@ function promptUser() {
         name: "product",
         message: "Type in ID of the product you would like to buy.",
         validate: function (value) {
-            if (isNaN(value) === false && parseInt(value) > 0 && parseInt(value) <= 11) {
+            if (isNaN(value) === false && parseInt(value) > 0 && parseInt(value) <= counter) {
                 return true;
             }
             return false;
@@ -166,7 +168,7 @@ function addInventory() {
         name: "product",
         message: "Type in ID of item you want to add into inventory.",
         validate: function (value) {
-            if (isNaN(value) === false && parseInt(value) > 0 && parseInt(value) <= 11) {
+            if (isNaN(value) === false && parseInt(value) > 0 && parseInt(value) <= counter) {
                 return true;
             }
             return false;
@@ -244,6 +246,7 @@ function addNewProduct() {
             var sql = "INSERT INTO products (product_name, department_name, price, stock_quantity) VALUES ('" + data.name + "', '" + data.department + "', '" + data.price + "', '" + data.quantity + "')";
             connection.query(sql, function (err, result) {
                 if (err) throw err;
+                counter++; 
                 
                 console.log("\nSo you just added " + data.quantity + " units of " + data.name + " into the database.\n");
                 endPrompt1();
