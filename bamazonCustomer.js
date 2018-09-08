@@ -44,6 +44,9 @@ function listOptions() {
         if (data.options === "Add to Inventory") {
             addInventory();
         }
+        if (data.options === "Add New Product") {
+            addNewProduct();
+        }
     })
 };
 
@@ -195,6 +198,61 @@ function addInventory() {
     });
 }
 
+function addNewProduct() {
+    inquirer.prompt([{
+        name: "name",
+        message: "What's the name of the product you would like to add?",
+        validate: function (value) {
+            if (value !== "") {
+                return true;
+            }
+            return false;
+        }
+    }, {
+        name: "department",
+        message: "What's the name of the department where your product came from?",
+        validate: function (value) {
+            if (value !== "") {
+                return true;
+            }
+            return false;
+        }
+    }, {
+        name: "price",
+        message: "What's the price of each product?",
+        validate: function (value) {
+            if (isNaN(value) === false && parseInt(value) > 0 && parseInt(value) <= 1000) {
+                return true;
+            }
+            return false;
+        }
+    }, {
+        name: "quantity",
+        message: "How many units of the product they would like to add?",
+        validate: function (value) {
+            if (isNaN(value) === false && parseInt(value) > 0 && parseInt(value) <= 1000) {
+                return true;
+            }
+            return false;
+        }
+    }]).then(function (data) {
+        var sqlProduct = Number(data.product) - 1;
+        connection.query("SELECT id, product_name, department_name, price, stock_quantity FROM products", function (err, res) {
+
+            // var productAddition = Number(res[sqlProduct].stock_quantity) + Number(data.quantity);
+
+            var sql = "INSERT INTO products (product_name, department_name, price, stock_quantity) VALUES ('" + data.name + "', '" + data.department + "', '" + data.price + "', '" + data.quantity + "')";
+            connection.query(sql, function (err, result) {
+                if (err) throw err;
+                
+                console.log("\nSo you just added " + data.quantity + " units of " + data.name + " into the database.\n");
+                endPrompt1();
+            });
+
+        })
+    });
+}
+
 function endPrompt() {
 
     // console.table(res);
@@ -251,3 +309,28 @@ function endPrompt() {
 //     });
 
 // }
+
+function endPrompt1() {
+
+    // console.table(res);
+
+    inquirer.prompt([{
+        type: 'list',
+        name: 'options',
+        message: 'Menu Options',
+        choices: ["View List of Products", "Return to home menu", "End Session"]
+    }]).then(function (data) {
+        if (data.options === "View List of Products") {
+            listProducts();
+        }
+        if (data.options === "Return to home menu") {
+            listOptions();
+        }
+        if (data.options === "End Session") {
+            console.log("\nThanks for using BAmazon, Hope you come back soon!");
+            connection.end();
+        }
+    })
+
+    // connection.end(); 
+};
